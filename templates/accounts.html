@@ -1,0 +1,491 @@
+{% extends "layout.html" %} {% block content %}
+<div class="row">
+  <div class="col-md-8">
+    <h2>Administración de Cuentas</h2>
+    <div class="card shadow">
+      <div class="card-body">
+        <table class="table table-hover">
+          <thead class="table-primary">
+            <tr>
+              <th>ID</th>
+              <th>Nombre de Cuenta</th>
+              <th>Saldo</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="accounts-table-body">
+            {% for account in accounts %}
+            <tr id="account-row-{{ account.id }}">
+              <td>{{ account.id }}</td>
+              <td>{{ account.name }}</td>
+              <td class="account-balance">
+                $<span>{{ "%.2f"|format(account.balance) }}</span>
+              </td>
+              <td>
+                <button
+                  class="btn btn-sm btn-success"
+                  onclick="showDepositModal('{{ account.id }}')"
+                >
+                  Depositar
+                </button>
+                <button
+                  class="btn btn-sm btn-warning"
+                  onclick="showWithdrawModal('{{ account.id }}')"
+                >
+                  Retirar
+                </button>
+                <button
+                  class="btn btn-sm btn-info"
+                  onclick="showTransferModal('{{ account.id }}')"
+                >
+                  Transferir
+                </button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <h2>Crear Nueva Cuenta</h2>
+    <div class="card shadow">
+      <div class="card-body">
+        <form id="create-account-form">
+          <div class="mb-3">
+            <label for="name" class="form-label">Nombre de la Cuenta</label>
+            <input
+              type="text"
+              class="form-control"
+              id="name"
+              name="name"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="initial_balance" class="form-label"
+              >Saldo Inicial</label
+            >
+            <input
+              type="number"
+              class="form-control"
+              id="initial_balance"
+              name="initial_balance"
+              min="0"
+              step="0.01"
+              value="0"
+            />
+          </div>
+          <button type="submit" class="btn btn-primary">Crear Cuenta</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modales para las operaciones -->
+<!-- Modal de Depósito -->
+<div class="modal fade" id="depositModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title">Realizar Depósito</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form id="deposit-form">
+          <input type="hidden" id="deposit-account-id" name="account_id" />
+          <div class="mb-3">
+            <label for="deposit-amount" class="form-label"
+              >Monto a Depositar</label
+            >
+            <input
+              type="number"
+              class="form-control"
+              id="deposit-amount"
+              name="amount"
+              min="0.01"
+              step="0.01"
+              required
+            />
+          </div>
+          <button type="submit" class="btn btn-success">
+            Realizar Depósito
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Retiro -->
+<div class="modal fade" id="withdrawModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-warning">
+        <h5 class="modal-title">Realizar Retiro</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form id="withdraw-form">
+          <input type="hidden" id="withdraw-account-id" name="account_id" />
+          <div class="mb-3">
+            <label for="withdraw-amount" class="form-label"
+              >Monto a Retirar</label
+            >
+            <input
+              type="number"
+              class="form-control"
+              id="withdraw-amount"
+              name="amount"
+              min="0.01"
+              step="0.01"
+              required
+            />
+          </div>
+          <button type="submit" class="btn btn-warning">Realizar Retiro</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Transferencia -->
+<div class="modal fade" id="transferModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-info">
+        <h5 class="modal-title">Realizar Transferencia</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form id="transfer-form">
+          <input type="hidden" id="from-account-id" name="from_account_id" />
+          <div class="mb-3">
+            <label for="to-account-id" class="form-label">Cuenta Destino</label>
+            <select
+              class="form-select"
+              id="to-account-id"
+              name="to_account_id"
+              required
+            >
+              <option value="">Seleccionar cuenta destino</option>
+              {% for account in accounts %}
+              <option value="{{ account.id }}">{{ account.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="transfer-amount" class="form-label"
+              >Monto a Transferir</label
+            >
+            <input
+              type="number"
+              class="form-control"
+              id="transfer-amount"
+              name="amount"
+              min="0.01"
+              step="0.01"
+              required
+            />
+          </div>
+          <button type="submit" class="btn btn-info">
+            Realizar Transferencia
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block scripts %}
+<script>
+  function showDepositModal(accountId) {
+    document.getElementById("deposit-account-id").value = accountId;
+    new bootstrap.Modal(document.getElementById("depositModal")).show();
+  }
+
+  function showWithdrawModal(accountId) {
+    document.getElementById("withdraw-account-id").value = accountId;
+    new bootstrap.Modal(document.getElementById("withdrawModal")).show();
+  }
+
+  function showTransferModal(accountId) {
+    document.getElementById("from-account-id").value = accountId;
+
+    // Deshabilitar la opción de la misma cuenta en el select
+    const selectElement = document.getElementById("to-account-id");
+    for (let i = 0; i < selectElement.options.length; i++) {
+      if (selectElement.options[i].value == accountId) {
+        selectElement.options[i].disabled = true;
+      } else {
+        selectElement.options[i].disabled = false;
+      }
+    }
+
+    new bootstrap.Modal(document.getElementById("transferModal")).show();
+  }
+
+  document
+    .getElementById("create-account-form")
+    .addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const formData = new FormData(this);
+      const name = formData.get("name"); // Aquí obtienes el nombre directamente del formulario
+
+      fetch("/accounts/create", {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            // Asegúrate de que el balance sea un número válido
+            const balance = parseFloat(data.account.balance);
+
+            // Verifica si balance es un número válido
+            if (isNaN(balance)) {
+              console.error(
+                "El balance no es un número válido:",
+                data.account.balance
+              );
+              alert("Error: El balance recibido no es válido.");
+              return;
+            }
+
+            // Añadir la nueva cuenta a la tabla
+            const tableBody = document.getElementById("accounts-table-body");
+            const newRow = document.createElement("tr");
+            newRow.id = `account-row-${data.account.id}`;
+
+            // Usamos el nombre del formulario para mostrarlo
+            newRow.innerHTML = `
+              <td>${data.account.id}</td>
+              <td>${name}</td>  <!-- Usa el nombre del formulario -->
+              <td class="account-balance">$<span>${balance.toFixed(
+                2
+              )}</span></td>
+              <td>
+                  <button class="btn btn-sm btn-success" onclick="showDepositModal(${
+                    data.account.id
+                  })">Depositar</button>
+                  <button class="btn btn-sm btn-warning" onclick="showWithdrawModal(${
+                    data.account.id
+                  })">Retirar</button>
+                  <button class="btn btn-sm btn-info" onclick="showTransferModal(${
+                    data.account.id
+                  })">Transferir</button>
+              </td>
+          `;
+
+            tableBody.appendChild(newRow);
+
+            // Resetear el formulario
+            this.reset();
+
+            // Añadir la nueva cuenta al select de transferencia
+            const selectElement = document.getElementById("to-account-id");
+            const option = document.createElement("option");
+            option.value = data.account.id;
+            option.text = name; // Usar el nombre del formulario
+            selectElement.appendChild(option);
+
+            alert("Cuenta creada exitosamente");
+          } else {
+            alert("Error: " + data.message);
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          alert("Error al procesar la solicitud");
+        });
+    });
+
+  // Realizar depósito
+  document
+    .getElementById("deposit-form")
+    .addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const formData = new FormData(this);
+
+      fetch("/transactions/deposit", {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Respuesta del servidor:", data);
+          if (data.success) {
+            // Actualizar el saldo en la tabla
+            const accountRow = document.getElementById(
+              `account-row-${data.account.id}`
+            );
+            const balanceCell = accountRow.querySelector(
+              ".account-balance span"
+            );
+            balanceCell.textContent = data.account.balance.toFixed(2);
+
+            // Cerrar el modal
+            bootstrap.Modal.getInstance(
+              document.getElementById("depositModal")
+            ).hide();
+
+            // Resetear el formulario
+            this.reset();
+
+            alert("Depósito realizado exitosamente");
+          } else {
+            alert("Error: " + data.message);
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          alert("Error al procesar la solicitud");
+        });
+    });
+
+  // Realizar retiro
+ document
+  .getElementById("withdraw-form")
+  .addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+
+    fetch("/transactions/withdraw", {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          // Asegurarnos de que el balance sea un número
+          const balance = parseFloat(data.account.balance);
+
+          // Verificar si el balance es un número válido
+          if (isNaN(balance)) {
+            console.error("El balance no es un número válido:", data.account.balance);
+            alert("Error: El balance recibido no es válido.");
+            return;
+          }
+
+          // Actualizar el saldo en la tabla
+          const accountRow = document.getElementById(`account-row-${data.account.id}`);
+          const balanceCell = accountRow.querySelector(".account-balance span");
+          balanceCell.textContent = balance.toFixed(2); // Usar toFixed después de convertirlo a número
+
+          // Cerrar el modal
+          bootstrap.Modal.getInstance(document.getElementById("withdrawModal")).hide();
+
+          // Resetear el formulario
+          this.reset();
+
+          alert("Retiro realizado exitosamente");
+        } else {
+          alert("Error: " + data.message);
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        alert("Error al procesar la solicitud");
+      });
+  });
+
+
+  // Realizar transferencia
+  document
+    .getElementById("transfer-form")
+    .addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const fromAccountId = document.getElementById("from-account-id").value;
+      const toAccountId = document.getElementById("to-account-id").value;
+      const amount = document.getElementById("transfer-amount").value;
+
+      fetch("/transactions/transfer", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: `from_account_id=${fromAccountId}&to_account_id=${toAccountId}&amount=${amount}`,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            // Verificar si balance de la cuenta origen es un número válido
+            const fromBalance = parseFloat(data.from_account.balance);
+            if (isNaN(fromBalance)) {
+              console.error(
+                "El balance de la cuenta origen no es un número válido:",
+                data.from_account.balance
+              );
+              alert("Error: El balance de la cuenta origen no es válido.");
+              return;
+            }
+
+            // Verificar si balance de la cuenta destino es un número válido
+            const toBalance = parseFloat(data.to_account.balance);
+            if (isNaN(toBalance)) {
+              console.error(
+                "El balance de la cuenta destino no es un número válido:",
+                data.to_account.balance
+              );
+              alert("Error: El balance de la cuenta destino no es válido.");
+              return;
+            }
+
+            // Actualizar el saldo en la tabla para ambas cuentas
+            const fromAccountRow = document.getElementById(
+              `account-row-${data.from_account.id}`
+            );
+            const fromBalanceCell = fromAccountRow.querySelector(
+              ".account-balance span"
+            );
+            fromBalanceCell.textContent = fromBalance.toFixed(2);
+
+            const toAccountRow = document.getElementById(
+              `account-row-${data.to_account.id}`
+            );
+            const toBalanceCell = toAccountRow.querySelector(
+              ".account-balance span"
+            );
+            toBalanceCell.textContent = toBalance.toFixed(2);
+
+            // Cerrar el modal
+            bootstrap.Modal.getInstance(
+              document.getElementById("transferModal")
+            ).hide();
+
+            // Resetear el formulario
+            this.reset();
+
+            alert("Transferencia realizada exitosamente");
+          } else {
+            alert("Error: " + data.message);
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          alert("Error al procesar la solicitud");
+        });
+    });
+</script>
+{% endblock %}

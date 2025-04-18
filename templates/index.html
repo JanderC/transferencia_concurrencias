@@ -1,0 +1,72 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="jumbotron text-center bg-light p-5 rounded">
+    <h1 class="display-4">BancoApp</h1>
+    <p class="lead">Sistema de gestión de transacciones bancarias IUT</p>
+    <hr class="my-4">
+    <p>Administra cuentas, realiza transferencias y visualiza el historial de operaciones.</p>
+    <div class="row justify-content-center mt-4">
+        <div class="col-md-4">
+            <div class="card text-center mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Administrar Cuentas</h5>
+                    <p class="card-text">Crea, consulta y administra tus cuentas bancarias.</p>
+                    <a href="{{ url_for('account.list_accounts') }}" class="btn btn-primary">Ir a Cuentas</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Ver Transacciones</h5>
+                    <p class="card-text">Consulta el historial de transacciones y movimientos.</p>
+                    <a href="{{ url_for('transaction.list_transactions') }}" class="btn btn-primary">Ver Transacciones</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                Características del Sistema
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Control de concurrencia en transacciones</li>
+                    <li class="list-group-item">Operaciones atómicas y seguras</li>
+                    <li class="list-group-item">Interfaz intuitiva y amigable</li>
+                    <li class="list-group-item">Gestión eficiente de cuentas bancarias</li>
+                    <li class="list-group-item">Transferencias en tiempo real</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                Tecnologías Utilizadas
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <strong>Backend:</strong> Python con Flask
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Base de datos:</strong> PostgreSQL
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Interfaz:</strong> HTML, CSS, JavaScript con Bootstrap
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Concurrencia:</strong> Bloqueo de nivel de fila con "FOR UPDATE"
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

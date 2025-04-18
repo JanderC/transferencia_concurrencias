@@ -1,0 +1,99 @@
+<!-- templates/transactions.html -->
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2>Historial de Transacciones</h2>
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>ID</th>
+                                <th>Tipo</th>
+                                <th>Cuenta Origen</th>
+                                <th>Cuenta Destino</th>
+                                <th>Monto</th>
+                                <th>Estado</th>
+                                <th>Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for transaction in transactions %}
+                            <tr>
+                                <td>{{ transaction.id }}</td>
+                                <td>
+                                    {% if transaction.transaction_type == 'deposit' %}
+                                    <span class="badge bg-success">Depósito</span>
+                                    {% elif transaction.transaction_type == 'withdrawal' %}
+                                    <span class="badge bg-warning">Retiro</span>
+                                    {% elif transaction.transaction_type == 'transfer' %}
+                                    <span class="badge bg-info">Transferencia</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% for account in accounts %}
+                                        {% if account.id == transaction.account_id %}
+                                            {{ account.name }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% if transaction.recipient_id %}
+                                        {% for account in accounts %}
+                                            {% if account.id == transaction.recipient_id %}
+                                                {{ account.name }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>${{ "%.2f"|format(transaction.amount) }}</td>
+                                <td>
+                                    {% if transaction.status == 'completed' %}
+                                    <span class="badge bg-success">Completada</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">{{ transaction.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ transaction.created_at.strftime('%d/%m/%Y %H:%M:%S') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Realizar nueva transacción</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('account.list_accounts') }}" class="btn btn-outline-primary">Ir a administración de cuentas</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Control de Concurrencia</h5>
+            </div>
+            <div class="card-body">
+                <p>Este sistema implementa control de concurrencia usando bloqueos a nivel de fila en PostgreSQL con la cláusula <code>FOR UPDATE</code>.</p>
+                <p>Esto garantiza que las transacciones sean seguras incluso cuando múltiples usuarios intentan modificar la misma cuenta al mismo tiempo.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
